@@ -1,29 +1,16 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>LabelGene — Harsh Developments</title>
-
 <link rel="manifest" href="manifest.json">
-
 <meta name="theme-color" content="#C3B091">
-
 <link rel="icon" href="icon-192.png">
-
 <link rel="apple-touch-icon" href="icon-192.png">
-
 <meta name="apple-mobile-web-app-capable" content="yes">
-
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
 <meta name="apple-mobile-web-app-title" content="LabelGene">
-
 <script>try{if(localStorage.getItem('sticker_dark_mode')==='1')document.documentElement.classList.add('dark')}catch(e){}</script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,19 +18,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 
 <!-- Excel parsing -->
-<script src="libs/xlsx.full.min.js"></script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <!-- PDF generation -->
-
-<script src="libs/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <!-- QR code generation -->
-<script src="libs/qrcode.min.js"></script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <!-- Linear barcode generation (Code128, Code39, EAN-13, UPC-A) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/JsBarcode/3.11.5/JsBarcode.all.min.js"></script>
 
-<script src="libs/JsBarcode.all.min.js"></script>
-
-<link rel="stylesheet" href="styles/main.css">
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
@@ -74,21 +57,10 @@
             </div>
           </div>
 
-          <div style="flex:none;display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px;padding:0 22px 16px;background:var(--surface)">
+          <div class="canvas-toolbar" style="flex:none;display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px;padding:0 22px 16px;background:var(--surface)">
             <div class="g-btn" id="bulkToggleBtn" style="display:flex;align-items:center;gap:8px;padding:8px 12px;font-size:9px;letter-spacing:1px;font-weight:700" role="switch" aria-checked="false" tabindex="0">
               <span id="bulkToggleTrack"><span id="bulkToggleThumb"></span></span>
               BULK LABELS
-            </div>
-            <div style="display:flex;align-items:center;gap:6px">
-              <div class="g-select" id="presetSelect" tabindex="0" style="min-width:160px">
-                <span id="presetLabel" class="ph">No preset loaded</span>
-                <span class="arr"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                <div class="g-options" id="presetOptions"></div>
-              </div>
-              <div class="g-btn" id="presetSaveBtn">Save</div>
-              <div class="g-btn" id="presetExportBtn" style="font-size:8px;padding:6px 10px">Export</div>
-              <div class="g-btn" id="presetImportBtn" style="font-size:8px;padding:6px 10px">Import</div>
-              <input type="file" id="presetImportInput" accept=".json" style="display:none">
             </div>
             <div class="g-select" id="sizeSelect" tabindex="0" style="min-width:150px">
               <span id="sizeLabel">50mm &times; 25mm</span>
@@ -104,6 +76,23 @@
                 <span class="arr"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
                 <div class="g-options" id="unitOptions"></div>
               </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;margin-left:auto" id="presetToolbarGroup">
+              <div class="g-select" id="presetSelect" tabindex="0" style="min-width:140px">
+                <span id="presetLabel" class="ph">No preset</span>
+                <span class="arr"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                <div class="g-options" id="presetOptions"></div>
+              </div>
+              <div class="g-btn g-btn-icon" id="presetSaveBtn" title="Save current settings as a preset" aria-label="Save preset">
+                <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="1.5"/><path d="M8 4v5h8V4"/><path d="M8 20v-6h8v6"/></svg>
+              </div>
+              <div class="g-btn g-btn-icon" id="presetExportBtn" title="Export presets as JSON" aria-label="Export presets as JSON">
+                <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 19h16"/></svg>
+              </div>
+              <div class="g-btn g-btn-icon" id="presetImportBtn" title="Import presets from JSON" aria-label="Import presets from JSON">
+                <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V9"/><path d="M7 14l5-5 5 5"/><path d="M4 19h16"/></svg>
+              </div>
+              <input type="file" id="presetImportInput" accept=".json" style="display:none">
             </div>
           </div>
           <div id="legibilityWarn" style="display:none;margin:0 22px 12px;font-size:9px;line-height:1.4;color:var(--red-ink);font-weight:600;padding:6px 10px;background:rgba(168,50,50,0.08);border:1px solid rgba(168,50,50,0.25);border-radius:8px"></div>
@@ -268,7 +257,7 @@
       <div id="asideCol" style="display:flex;flex-direction:column">
 
         <div id="defaultToolsPanel" style="display:flex;flex-direction:column;gap:12px">
-        <div class="form-section-hdr" style="margin-top:14px">2. ADD ELEMENTS</div>
+        <div class="form-section-hdr">1. ADD ELEMENTS</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
               <div class="g-btn dsg-elbtn" id="dsgAddTextBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16M12 6v13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><span>Text</span></div>
               <div class="g-btn dsg-elbtn" id="dsgAddImageBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.7"/><circle cx="8.5" cy="8.5" r="1.5" stroke="currentColor" stroke-width="1.7"/><path d="M21 15l-5-5-9 9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Image</span></div>
@@ -277,7 +266,7 @@
               <div class="g-btn dsg-elbtn" id="dsgAddCircleBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/></svg><span>Circle</span></div>
               <div class="g-btn dsg-elbtn" id="dsgAddLineBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="5" cy="19" r="1.6" fill="currentColor"/><path d="M6.5 17.5L17.5 6.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="19" cy="5" r="1.6" fill="currentColor"/></svg><span>Line</span></div>
             </div>
-        <div class="form-section-hdr">3. DESIGN / PROPERTIES</div>
+        <div class="form-section-hdr">2. DESIGN / PROPERTIES</div>
         <div class="dsg-toolbar" style="flex-direction:column;align-items:stretch;gap:10px">
             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:100%">
               <div class="g-select" id="fontSelect" tabindex="0" style="min-width:100px">
@@ -347,29 +336,6 @@
                 STROKE
                 <input type="color" id="designerSelStroke" class="dsg-color-input">
               </label>
-              <label id="designerSelTextWrap" style="display:none;align-items:center;gap:6px;font-size:9px;color:var(--text-muted);letter-spacing:.5px;font-weight:600">
-                TEXT
-                <input type="text" id="designerSelText" style="min-width:120px;padding:6px 10px;border-radius:8px;font-size:11px;font-family:inherit;color:var(--text-on-dark);background:var(--input);border:1px solid var(--border);outline:none;box-shadow:var(--shadow-input);font-weight:600">
-              </label>
-              <label id="designerSelShapeFontSizeWrap" style="display:none;align-items:center;gap:6px;font-size:9px;color:var(--text-muted);letter-spacing:.5px;font-weight:600">
-                FONT SIZE
-                <input type="number" id="designerSelShapeFontSize" class="num-input" min="4" max="72" step="0.5" placeholder="Auto" style="width:54px">
-              </label>
-              <label id="designerSelShapeColorWrap" style="display:none;align-items:center;gap:6px;font-size:9px;color:var(--text-muted);letter-spacing:.5px;font-weight:600">
-                COLOR
-                <input type="color" id="designerSelShapeColor" class="dsg-color-input">
-                <input type="text" id="designerSelShapeColorHex" class="num-input" maxlength="7" style="width:78px;text-transform:uppercase">
-              </label>
-              <div id="designerSelShapeStyleWrap" style="display:none;align-items:center;gap:4px">
-                <div class="align-btn" id="designerSelShapeBold" title="Bold"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 4h7a4 4 0 0 1 0 8H6zM6 12h8a4 4 0 0 1 0 8H6z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-                <div class="align-btn" id="designerSelShapeItalic" title="Italic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M10 4h7M7 20h7M14 4 10 20" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-                <div class="align-btn" id="designerSelShapeUnderline" title="Underline"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 4v8a6 6 0 0 0 12 0V4M4 20h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-              </div>
-              <div id="designerSelShapeAlignWrap" style="display:none;align-items:center;gap:4px">
-                <div class="align-btn" data-align="Left" title="Align left"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
-                <div class="align-btn" data-align="Center" title="Align center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16M7 12h10M5.5 18h13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
-                <div class="align-btn" data-align="Right" title="Align right"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16M10 12h10M7 18h13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
-              </div>
               <div id="dsgAlignGroup" style="display:none;gap:6px;flex-wrap:wrap">
                 <div class="g-btn" id="dsgAlignLeftBtn" title="Align left">Left</div>
                 <div class="g-btn" id="dsgAlignHCenterBtn" title="Align center horizontally">Center</div>
@@ -449,7 +415,7 @@
             <input type="checkbox" id="usageToggle"> SHARE ANONYMOUS USAGE STATS (FORMAT, COUNT — NO DATA)
           </label>
         </div>
-      <div id="zplNote" style="display:none;font-size:9px;line-height:1.4;color:var(--text-muted);font-weight:600;padding:0 12px 8px">One raw ZPL/EPL/TSPL command block per label — send the downloaded file straight to a Zebra, TSC, or ZPL/EPL/TSPL-compatible thermal printer. No multi-up sheet layout; that's a PDF/paper-sheet concept.</div>
+      <div id="directPrintNote" class="export-pending" style="display:none;font-size:9px;line-height:1.4;color:var(--text-muted);font-weight:600;padding:0 12px 8px">Each label is sent as its own <span id="directPrintNoteSize">50mm × 25mm</span> page. In the print dialog, set <strong>Paper size</strong> to match that exactly (not "USER" / a default preset) — a mismatch there is what makes a printer stamp one label then feed several blank ones.</div>
 
       <div class="gen-wrap" id="genWrap">
         <div class="gen-shimmer"></div>
@@ -483,49 +449,10 @@
   </div>
 </div>
 
-<div id="printPreviewModal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(38,32,25,.55);align-items:center;justify-content:center;padding:24px">
-  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-raised);max-width:520px;width:100%;max-height:90vh;display:flex;flex-direction:column;overflow:hidden">
-    <div style="padding:16px 20px;border-bottom:1px solid var(--border)">
-      <div style="font-size:11px;font-weight:800;letter-spacing:1.5px;color:var(--text-primary)">CONFIRM PRINT</div>
-      <div id="printPreviewDims" style="font-size:10px;color:var(--text-secondary);margin-top:3px;font-weight:600"></div>
-    </div>
-    <div style="padding:22px;display:flex;align-items:center;justify-content:center;background:var(--page);overflow:auto">
-      <iframe id="printPreviewFrame" title="Print preview" style="border:1px solid var(--border);border-radius:var(--radius-sm);background:#fff;flex:none"></iframe>
-    </div>
-    <div id="printPrinterRow" style="padding:10px 20px;border-top:1px solid var(--border);display:none">
-      <div style="font-size:9px;letter-spacing:2px;color:var(--text-tertiary);font-weight:700;margin-bottom:6px">PRINTER</div>
-      <div id="printPrinterWrap" style="display:flex;gap:8px;align-items:center">
-        <select id="printPrinterSelect" style="flex:1;padding:8px 12px;border-radius:var(--radius-sm);font-size:11px;font-family:inherit;font-weight:600;background:var(--input);border:1px solid var(--border);color:var(--text-primary)">
-          <option value="">Loading printers...</option>
-        </select>
-        <label style="display:flex;align-items:center;gap:5px;font-size:9px;color:var(--text-muted);letter-spacing:1px;font-weight:600">COPIES
-          <input type="number" id="printCopies" class="num-input" value="1" min="1" max="99" style="width:46px">
-        </label>
-      </div>
-      <div id="printPrinterError" style="font-size:9px;color:var(--red-ink);font-weight:600;margin-top:6px;display:none"></div>
-    </div>
-    <div style="padding:14px 20px;display:flex;gap:10px;justify-content:flex-end;border-top:1px solid var(--border)">
-      <div class="g-btn" id="printPreviewCancel" role="button" tabindex="0">CANCEL</div>
-      <div class="g-btn" id="printPreviewConfirm" role="button" tabindex="0" style="background:var(--accent-deep);border-color:var(--accent-deep);color:var(--text-on-accent)">PRINT</div>
-    </div>
-  </div>
-</div>
+<iframe id="directPrintFrame" title="Direct print" aria-hidden="true" style="position:fixed;top:-10000px;left:-10000px;width:600px;height:600px;border:0"></iframe>
 
 <input type="file" id="fileInput" accept=".xlsx,.xls">
 
-<div id="customPromptOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;justify-content:center;align-items:center">
-  <div style="background:var(--surface,#1e1e1e);border:1px solid var(--border,#333);border-radius:8px;padding:24px;min-width:320px;max-width:90vw">
-    <div id="customPromptMsg" style="margin-bottom:16px;color:var(--text,#e0e0e0);font-size:14px"></div>
-    <input id="customPromptInput" type="text" style="width:100%;box-sizing:border-box;padding:8px 12px;border:1px solid var(--border,#555);border-radius:4px;background:var(--bg,#121212);color:var(--text,#e0e0e0);font-size:14px;margin-bottom:16px;outline:none" />
-    <div style="display:flex;justify-content:flex-end;gap:8px">
-      <button id="customPromptCancel" style="padding:6px 16px;border:1px solid var(--border,#555);border-radius:4px;background:transparent;color:var(--text,#aaa);cursor:pointer;font-size:13px">Cancel</button>
-      <button id="customPromptOk" style="padding:6px 16px;border:none;border-radius:4px;background:var(--accent,#c8a96e);color:#000;cursor:pointer;font-size:13px;font-weight:600">OK</button>
-    </div>
-  </div>
-</div>
-
-<script src="scripts/app/app.js"></script>
-
+<script src="app.js"></script>
 </body>
-
 </html>
