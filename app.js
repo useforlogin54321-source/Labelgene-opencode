@@ -1082,6 +1082,24 @@ function renderDesignerStage(){
     } else if(el.type==='shape'){
       div.style.background = (el.fill && el.fill!=='none') ? el.fill : 'transparent';
       div.style.border = (el.stroke && el.stroke!=='none') ? `${el.strokeWidth||0.3}mm solid ${el.stroke}` : 'none';
+      div.style.display = 'flex';
+      div.style.alignItems = 'center';
+      div.style.justifyContent = 'center';
+      div.style.overflow = 'hidden';
+      div.style.padding = '0 2px';
+      const fontFamily = PREVIEW_FONTS[state.design.font] || PREVIEW_FONTS.Helvetica;
+      const autoSz = Math.min(22, Math.max(6, el.h*2.2));
+      const sz = (el.fontSize>0) ? el.fontSize : (state.design.fontSize>0 ? state.design.fontSize : autoSz);
+      div.style.fontFamily = fontFamily;
+      div.style.fontWeight = state.design.bold ? '700' : '400';
+      div.style.fontStyle = state.design.italic ? 'italic' : 'normal';
+      div.style.textDecoration = state.design.underline ? 'underline' : 'none';
+      div.style.fontSize = (sz*0.3528*dsgScale)+'px';
+      div.style.color = state.design.color || '#000000';
+      const txt=document.createElement('div');
+      txt.style.cssText='overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%';
+      txt.textContent = String(el.text ?? '');
+      div.appendChild(txt);
     } else if(el.type==='qr'){
       const ico=document.createElement('div');
       ico.className='dsg-ico';
@@ -1138,9 +1156,33 @@ function renderDesignerStage(){
     wireDrag(div, el, handles, i);
     if(el.type==='field') div.addEventListener('dblclick', (e)=>{ e.stopPropagation(); dsgEditFieldInline(div, el); });
     if(el.type==='text') div.addEventListener('dblclick', (e)=>{ e.stopPropagation(); dsgEditStaticTextInline(div, el); });
+    if(el.type==='shape') div.addEventListener('dblclick', (e)=>{ e.stopPropagation(); dsgEditShapeTextInline(div, el); });
     designerStage.appendChild(div);
   });
   renderLayersPanel();
+}
+function dsgEditShapeTextInline(div, el){
+  if(el.type!=='shape') return;
+  dsgPushHistory();
+  const ta = document.createElement('textarea');
+  ta.value = String(el.text ?? '');
+  ta.style.cssText = `position:absolute;left:${div.style.left};top:${div.style.top};width:${div.style.width};height:${div.style.height};`
+    + 'resize:none;z-index:50;font:inherit;padding:2px 4px;box-sizing:border-box;border:1.5px solid var(--accent-deep);border-radius:3px;background:#fff;color:#111';
+  designerStage.appendChild(ta);
+  ta.focus(); ta.select();
+  let done = false;
+  function commit(){
+    if(done) return; done = true;
+    el.text = ta.value;
+    ta.remove();
+    checkLegibility();
+  }
+  ta.addEventListener('blur', commit);
+  ta.addEventListener('keydown', (e)=>{
+    e.stopPropagation();
+    if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); commit(); }
+    else if(e.key==='Escape'){ e.preventDefault(); commit(); }
+  });
 }
 function dsgEditStaticTextInline(div, el){
   if(el.type!=='text') return;
@@ -1465,8 +1507,7 @@ function dsgAddShape(kind){
   const h = kind==='line' ? 1 : Math.min(hMm*0.4, 15);
   const el = Object.assign(
     { type:'shape', shapeKind:kind, label: kind==='circle'?'Circle':kind==='line'?'Line':'Rectangle',
-      fill: kind==='line' ? '#3D5A85' : '#c98f5e', stroke: kind==='line' ? 'none' : '#3D5A85',
-      strokeWidth: 0.3, rotation:0, opacity:1 },
+      text: '', fill: '#ffffff', stroke: '#3D5A85', strokeWidth: 0.3, rotation:0, opacity:1 },
     dsgCenterDefaults(Math.max(kind==='line'?4:3, w), Math.max(kind==='line'?1:3, h))
   );
   state.canvasElements.push(el);
@@ -1845,8 +1886,7 @@ document.getElementById('bulkToggleBtn')?.addEventListener('click', ()=>{
   syncBulkUI();
 });
 syncBulkUI();
-document.getElementById('excelCard')?.addEventListener('click', ()=> browseBtn.click());
-document.getElementById('manualCard')?.addEventListener('click', ()=> document.getElementById('manualText')?.focus());
+
 
 browseBtn.addEventListener('click',()=>fileInput.click());
 fileInput.addEventListener('change', async (e)=>{
@@ -2067,15 +2107,31 @@ function drawShapeInPdf(doc, el, offsetX, offsetY){
   const style = hasFill && hasStroke ? 'FD' : hasFill ? 'F' : 'D';
   if(el.shapeKind==='circle'){
     doc.ellipse(cx, cy, w/2, h/2, style);
-    return;
+  } else {
+    // rect: rotate corners about center, draw as closed polygon (jsPDF has no native rotated-rect primitive)
+    const corners = [[x,y],[x+w,y],[x+w,y+h],[x,y+h]].map(([px,py])=>rotatePointDeg(px,py,cx,cy,rot));
+    const [start, ...rest] = corners;
+    const deltas = [];
+    let prev = start;
+    for(const pt of rest){ deltas.push([pt[0]-prev[0], pt[1]-prev[1]]); prev = pt; }
+    doc.lines(deltas, start[0], start[1], [1,1], style, true);
   }
-  // rect: rotate corners about center, draw as closed polygon (jsPDF has no native rotated-rect primitive)
-  const corners = [[x,y],[x+w,y],[x+w,y+h],[x,y+h]].map(([px,py])=>rotatePointDeg(px,py,cx,cy,rot));
-  const [start, ...rest] = corners;
-  const deltas = [];
-  let prev = start;
-  for(const pt of rest){ deltas.push([pt[0]-prev[0], pt[1]-prev[1]]); prev = pt; }
-  doc.lines(deltas, start[0], start[1], [1,1], style, true);
+  // Draw text inside shape if present
+  const text = String(el.text ?? '').trim();
+  if(text){
+    const fontFamily = FONTS[el.font || 'Helvetica'] || 'helvetica';
+    const fontStyle = (el.bold ? 'bold' : '') + (el.italic ? 'italic' : '') || 'normal';
+    const sz = (el.fontSize>0) ? el.fontSize : 12;
+    doc.setFont(fontFamily, fontStyle);
+    doc.setFontSize(sz);
+    const textColor = el.color || '#000000';
+    const [tr,tg,tb] = hexToRgb(textColor);
+    doc.setTextColor(tr,tg,tb);
+    const textW = doc.getTextWidth(text);
+    const textX = cx - textW/2;
+    const textY = cy + sz*0.3528*0.35;
+    doc.text(text, textX, textY, { angle: -rot });
+  }
 }
 function qrToDataURL(text, sizePx){
   return new Promise((resolve, reject)=>{
@@ -2215,10 +2271,42 @@ async function renderLabelPreview(){
 
   if(useCanvas){
     state.canvasElements.forEach(el=>{
-      if(el.hidden || el.type==='shape' || el.type==='image') return; // ponytail: shapes/images skipped — rare in practice, image-loading + shape-path translation is real added complexity for a preview that already covers the common case
+      if(el.hidden || el.type==='image') return;
       ctx.globalAlpha = el.opacity ?? 1;
       if(el.type==='qr'){
         if(codeImg) ctx.drawImage(codeImg, el.x*scale, el.y*scale, el.w*scale, el.h*scale);
+      } else if(el.type==='shape'){
+        const x = el.x*scale, y = el.y*scale, w = el.w*scale, h = el.h*scale;
+        const cx = x + w/2, cy = y + h/2;
+        const rot = el.rotation || 0;
+        ctx.save();
+        ctx.translate(cx, cy);
+        if(rot) ctx.rotate(rot*Math.PI/180);
+        // Draw shape
+        if(el.shapeKind==='circle'){
+          if(el.fill && el.fill!=='none'){ ctx.fillStyle = el.fill; ctx.beginPath(); ctx.ellipse(0,0,w/2,h/2,0,0,Math.PI*2); ctx.fill(); }
+          if(el.stroke && el.stroke!=='none'){ ctx.strokeStyle = el.stroke; ctx.lineWidth = Math.max(1, (el.strokeWidth||0.3)*scale); ctx.beginPath(); ctx.ellipse(0,0,w/2,h/2,0,0,Math.PI*2); ctx.stroke(); }
+        } else if(el.shapeKind==='line'){
+          ctx.strokeStyle = (el.stroke && el.stroke!=='none') ? el.stroke : (el.fill || '#3D5A85');
+          ctx.lineWidth = Math.max(1, h);
+          ctx.beginPath(); ctx.moveTo(-w/2, 0); ctx.lineTo(w/2, 0); ctx.stroke();
+        } else {
+          // rect
+          if(el.fill && el.fill!=='none'){ ctx.fillStyle = el.fill; ctx.fillRect(-w/2, -h/2, w, h); }
+          if(el.stroke && el.stroke!=='none'){ ctx.strokeStyle = el.stroke; ctx.lineWidth = Math.max(1, (el.strokeWidth||0.3)*scale); ctx.strokeRect(-w/2, -h/2, w, h); }
+        }
+        // Draw text inside shape
+        const text = String(el.text ?? '').trim();
+        if(text){
+          const fontFamily = PREVIEW_FONTS[design.font] || PREVIEW_FONTS.Helvetica;
+          const autoSz = Math.min(22, Math.max(6, el.h*2.2));
+          const sz = (el.fontSize>0) ? el.fontSize : (design.fontSize>0 ? design.fontSize : autoSz);
+          ctx.font = `${design.italic?'italic ':''}${design.bold?'bold ':''}${sz*0.3528*scale}px ${fontFamily}`;
+          ctx.fillStyle = design.color || '#000000';
+          const tw = ctx.measureText(text).width;
+          ctx.fillText(text, -tw/2, sz*0.3528*scale*0.35);
+        }
+        ctx.restore();
       } else if(el.type==='field' || el.type==='text'){
         const text = el.type==='text' ? String(el.text ?? '').trim() : String(rowData[el.fieldIdx] ?? '').trim();
         const boxWpx = Math.max(1, (el.w-1)*scale);
