@@ -923,7 +923,10 @@ function dsgSyncSelectionUI(){
   const rotateLbl  = document.getElementById('designerSelRotation').closest('label');
   if(n>1){
     document.getElementById('designerSelName').textContent = n+' elements selected';
-    ['designerSelFontSizeWrap','designerSelFillWrap','designerSelStrokeWrap'].forEach(id=>{ document.getElementById(id).style.display='none'; });
+    document.querySelectorAll('#designerSelPanel .form-section-hdr').forEach(h=>{ h.style.display = h.textContent.trim()==='ARRANGE' ? 'block' : 'none'; });
+    document.getElementById('designerSelFontSizeWrap').style.display='none';
+    document.getElementById('designerSelFillWrap').style.display='none';
+    document.getElementById('designerSelStrokeWrap').style.display='none';
     if(opacityLbl) opacityLbl.style.display='none';
     if(rotateLbl) rotateLbl.style.display='none';
     document.getElementById('dsgAlignGroup').style.display='flex';
@@ -946,11 +949,24 @@ function dsgSyncSelectionUI(){
   if(!el){ panel.style.display='none'; renderLayersPanel(); return; }
   const isField = el.type==='field' || el.type==='text';
   const isShape = el.type==='shape';
+  const hasText = isField || isShape || el.type==='text';
   document.getElementById('designerSelName').textContent = dsgElName(el);
-  document.getElementById('designerSelFontSizeWrap').style.display = isField ? 'flex' : 'none';
-  document.getElementById('designerSelFontSize').value = (isField && el.fontSize>0) ? el.fontSize : '';
+  document.getElementById('designerSelFontSizeWrap').style.display = (isField || isShape) ? 'flex' : 'none';
+  document.getElementById('designerSelFontSize').value = (isField && el.fontSize>0) ? el.fontSize : (isShape && el.fontSize>0) ? el.fontSize : '';
   document.getElementById('designerSelFillWrap').style.display = isShape ? 'flex' : 'none';
   document.getElementById('designerSelStrokeWrap').style.display = isShape ? 'flex' : 'none';
+  // Show/hide TEXT section
+  const textSection = document.querySelector('#designerSelPanel .form-section-hdr:nth-of-type(1)');
+  if(textSection) textSection.style.display = hasText ? 'block' : 'none';
+  document.querySelectorAll('#designerSelPanel .form-section-hdr + div').forEach((div,i)=>{
+    // First div after TEXT header is the text controls
+    if(i===0) div.style.display = hasText ? 'flex' : 'none';
+  });
+  // Show/hide SHAPE section
+  const shapeSection = document.querySelector('#designerSelPanel .form-section-hdr:nth-of-type(2)');
+  if(shapeSection) shapeSection.style.display = isShape ? 'block' : 'none';
+  const shapeDiv = document.querySelectorAll('#designerSelPanel .form-section-hdr + div')[1];
+  if(shapeDiv) shapeDiv.style.display = isShape ? 'flex' : 'none';
   if(opacityLbl) opacityLbl.style.display='flex';
   if(rotateLbl) rotateLbl.style.display='flex';
   if(isShape){
@@ -1174,8 +1190,11 @@ function dsgEditShapeTextInline(div, el){
   function commit(){
     if(done) return; done = true;
     el.text = ta.value;
+    dsgAutoSizeShape(el);
     ta.remove();
     checkLegibility();
+    renderDesignerStage();
+    selectEl(dsgSelectedIdx);
   }
   ta.addEventListener('blur', commit);
   ta.addEventListener('keydown', (e)=>{
@@ -1485,6 +1504,25 @@ function dsgToggleLockAt(i){
 function dsgCenterDefaults(w, h){
   const [wMm,hMm] = dsgSizeMm;
   return { x: Math.max(0,(wMm-w)/2), y: Math.max(0,(hMm-h)/2), w, h };
+}
+
+function dsgAutoSizeShape(el){
+  if(el.type !== 'shape' || !el.text) return;
+  const fontFamily = PREVIEW_FONTS[state.design.font] || PREVIEW_FONTS.Helvetica;
+  const sz = (el.fontSize>0) ? el.fontSize : (state.design.fontSize>0 ? state.design.fontSize : 12);
+  const ctx = document.createElement('canvas').getContext('2d');
+  ctx.font = `${state.design.italic?'italic ':''}${state.design.bold?'bold ':''}${sz*0.3528}px ${fontFamily}`;
+  const textW = ctx.measureText(el.text).width / 0.3528;
+  const padding = 4;
+  const minW = textW + padding * 2;
+  const minH = Math.max(sz * 1.4, 8);
+  if(el.shapeKind === 'circle'){
+    const d = Math.max(minW, minH);
+    el.w = d; el.h = d;
+  } else {
+    el.w = Math.max(minW, 10);
+    el.h = Math.max(minH, 8);
+  }
 }
 function dsgAddText(){
   dsgPushHistory();
@@ -1855,21 +1893,13 @@ document.addEventListener('keydown', (e)=>{
 
 const sTxt=document.getElementById('sTxt');
 const sDot=document.getElementById('sDot');
-const progFill=document.getElementById('progFill');
-const progShimmer=document.getElementById('progShimmer');
 
 function setStatus(msg,col){
   sTxt.textContent=msg;sTxt.style.color=col;
   sDot.style.background=col;sDot.style.boxShadow='none';
 }
 function setProgress(pct,col,shimmer){
-  progFill.style.width=pct+'%';
   curveCtrl.setTarget(pct/100);
-  if(col){
-    progFill.style.background=col;
-    progFill.style.boxShadow='none';
-  }
-  progShimmer.classList.toggle('on', !!shimmer);
 }
 
 const fileInput=document.getElementById('fileInput');
@@ -2845,12 +2875,31 @@ function generateTSPL(rows, labelWmm, labelHmm, qrFieldIdx, design, canvasElemen
 
 const EXPORT_FORMATS = ['PDF (sheet)', 'ZPL (Zebra thermal)', 'EPL (Eltron thermal)', 'TSPL (TSC thermal)'];
 const DPI_LABELS = { '203 dpi (standard)': 203, '300 dpi (high-res)': 300 };
-const exportFormatSelect = document.getElementById('exportFormatSelect');
-const exportFormatOptions = document.getElementById('exportFormatOptions');
-const exportFormatLabel = document.getElementById('exportFormatLabel');
+const exportFormatGroup = document.getElementById('exportFormatGroup');
 const zplDpiSelect = document.getElementById('zplDpiSelect');
 const zplDpiOptions = document.getElementById('zplDpiOptions');
 const zplDpiLabel = document.getElementById('zplDpiLabel');
+
+function buildExportFormatButtons(){
+  if(!exportFormatGroup) return;
+  exportFormatGroup.innerHTML='';
+  EXPORT_FORMATS.forEach(key=>{
+    const btn=document.createElement('div');
+    btn.className='g-btn export-format-btn'+(key===state.exportFormat?' active':'');
+    btn.dataset.format = key;
+    btn.textContent = key === 'PDF (sheet)' ? 'PDF (sheet)' : key.split(' ')[0];
+    btn.style.cssText = 'flex:1;min-width:100px;text-align:center;padding:10px 8px';
+    btn.addEventListener('click',(e)=>{
+      e.stopPropagation();
+      state.exportFormat=key;
+      document.body.classList.add('export-chosen');
+      buildExportFormatButtons();
+      syncExportFormatUI();
+    });
+    exportFormatGroup.appendChild(btn);
+  });
+}
+buildExportFormatButtons();
 
 // ponytail: looks genText/genIcon up fresh each call instead of closing over the
 // consts declared further down — this runs as early as line ~1040, before those
@@ -2881,38 +2930,14 @@ function syncExportFormatUI(){
       sizeSpan.textContent = `${wMm}mm \u00d7 ${hMm}mm`;
     }
   }
+  const exportFormatGroup = document.getElementById('exportFormatGroup');
+  if(exportFormatGroup){
+    exportFormatGroup.querySelectorAll('.export-format-btn').forEach(btn=>{
+      btn.classList.toggle('active', btn.dataset.format === state.exportFormat);
+    });
+  }
   if(typeof busy==='undefined' || !busy) applyGenBtnAppearance(isThermal);
 }
-function buildExportFormatOptions(){
-  exportFormatOptions.innerHTML='';
-  EXPORT_FORMATS.forEach(key=>{
-    const opt=document.createElement('div');
-    opt.className='g-opt'+(key===state.exportFormat?' active':'');
-    opt.textContent=key;
-    opt.addEventListener('click',(e)=>{
-      e.stopPropagation();
-      state.exportFormat=key;
-      exportFormatLabel.textContent=key;
-      document.body.classList.add('export-chosen');
-      closeAll();
-      buildExportFormatOptions();
-      syncExportFormatUI();
-    });
-    exportFormatOptions.appendChild(opt);
-  });
-}
-buildExportFormatOptions();
-exportFormatSelect.addEventListener('click',(e)=>{
-  e.stopPropagation();
-  const isOpen=exportFormatSelect.classList.contains('open');
-  closeAll();
-  if(!isOpen){
-    exportFormatSelect.classList.add('open');
-    exportFormatOptions.classList.add('open');
-    const row=exportFormatSelect.closest('.form-row');
-    if(row) row.classList.add('row-active');
-  }
-});
 function buildDpiOptions(){
   zplDpiOptions.innerHTML='';
   Object.keys(DPI_LABELS).forEach(key=>{

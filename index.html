@@ -67,6 +67,11 @@
               <span class="arr"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
               <div class="g-options" id="sizeOptions"></div>
             </div>
+            <div class="g-select" id="presetSelect" tabindex="0" style="min-width:140px">
+              <span id="presetLabel" class="ph">No preset</span>
+              <span class="arr"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <div class="g-options" id="presetOptions"></div>
+            </div>
             <div id="customSizeRow" style="display:none;align-items:center;gap:6px;flex-wrap:wrap">
               <input type="number" id="customW" class="num-input" placeholder="Width" min="1" step="0.1" style="width:64px">
               <span style="font-size:9px;color:var(--text-muted)">&times;</span>
@@ -78,11 +83,6 @@
               </div>
             </div>
             <div style="display:flex;align-items:center;gap:6px;margin-left:auto" id="presetToolbarGroup">
-              <div class="g-select" id="presetSelect" tabindex="0" style="min-width:140px">
-                <span id="presetLabel" class="ph">No preset</span>
-                <span class="arr"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                <div class="g-options" id="presetOptions"></div>
-              </div>
               <div class="g-btn g-btn-icon" id="presetSaveBtn" title="Save current settings as a preset" aria-label="Save preset">
                 <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="1.5"/><path d="M8 4v5h8V4"/><path d="M8 20v-6h8v6"/></svg>
               </div>
@@ -254,77 +254,81 @@
               <div class="g-btn dsg-elbtn" id="dsgAddCircleBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/></svg><span>Circle</span></div>
               <div class="g-btn dsg-elbtn" id="dsgAddLineBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="5" cy="19" r="1.6" fill="currentColor"/><path d="M6.5 17.5L17.5 6.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="19" cy="5" r="1.6" fill="currentColor"/></svg><span>Line</span></div>
             </div>
-        <div class="form-section-hdr">2. DESIGN / PROPERTIES</div>
-        <div class="dsg-toolbar" style="flex-direction:column;align-items:stretch;gap:10px">
-            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:100%">
-              <div class="g-select" id="fontSelect" tabindex="0" style="min-width:100px">
-                <span id="fontLabel">Helvetica</span>
-                <span class="arr"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                <div class="g-options" id="fontOptions"></div>
-              </div>
-              <div class="align-group" id="alignGroup" role="group" aria-label="Text alignment">
-                <div class="align-btn" data-align="Left" title="Align left"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
-                <div class="align-btn active" data-align="Center" title="Align center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16M7 12h10M5.5 18h13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
-                <div class="align-btn" data-align="Right" title="Align right"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16M10 12h10M7 18h13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
-              </div>
-              <div class="align-group" id="fmtGroup" role="group" aria-label="Text style">
-                <div class="align-btn active" id="boldBtn" title="Bold"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 4h7a4 4 0 0 1 0 8H6zM6 12h8a4 4 0 0 1 0 8H6z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-                <div class="align-btn" id="italicBtn" title="Italic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M10 4h7M7 20h7M14 4 10 20" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-                <div class="align-btn" id="underlineBtn" title="Underline"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 4v8a6 6 0 0 0 12 0V4M4 20h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-              </div>
-              <div style="display:flex;align-items:center;gap:5px">
-                <input type="color" id="textColor" value="#000000" style="width:24px;height:24px;padding:0;border:none;border-radius:8px;background:none;cursor:pointer">
-                <input type="text" id="textColorHex" class="num-input" value="#000000" maxlength="7" style="width:78px;text-transform:uppercase">
-              </div>
-            </div>
-            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:100%;padding-top:10px;border-top:1px solid var(--border)">
-              <label style="display:flex;align-items:center;gap:6px;font-size:9px;color:var(--text-muted);letter-spacing:1px;cursor:pointer;font-weight:600">
-                <input type="checkbox" id="borderToggle"> BORDER
-              </label>
-              <input type="color" id="borderColor" value="#666666" style="width:24px;height:24px;padding:0;border:none;border-radius:8px;background:none;cursor:pointer">
-              <label style="display:flex;align-items:center;gap:6px;font-size:9px;color:var(--text-muted);letter-spacing:1px;font-weight:600">
-                RADIUS
-                <input type="number" id="radiusInput" class="num-input" min="0" step="0.5" value="0" style="width:46px">
-              </label>
-              <label style="display:flex;align-items:center;gap:6px;font-size:9px;color:var(--text-muted);letter-spacing:1px;font-weight:600">
-                FONT SIZE
-                <div class="num-stepper">
-                  <button type="button" data-step="-0.5" aria-label="Decrease font size">&minus;</button>
-                  <input type="number" id="fontSizeInput" min="4" max="72" step="0.5" placeholder="Auto">
-                  <button type="button" data-step="0.5" aria-label="Increase font size">&plus;</button>
-                </div>
-              </label>
-              <label style="display:flex;align-items:center;gap:6px;font-size:9px;color:var(--text-muted);letter-spacing:1px;cursor:pointer;font-weight:600">
-                <input type="checkbox" id="rotateToggle"> ROTATE 90&deg;
-              </label>
-            </div>
-            </div>
         </div>
         <div id="designerSelPanel" class="clay-raised" style="display:none;margin-top:12px;padding:12px 14px;border-radius:var(--radius-lg);width:100%;max-width:460px;
-              align-items:center;gap:10px;flex-wrap:wrap">
-              <span style="font-size:9px;color:var(--text-muted);letter-spacing:.5px;font-weight:700">SELECTED:</span>
-              <span id="designerSelName" style="font-size:10px;font-weight:700;color:var(--accent-text)"></span>
-              <label id="designerSelFontSizeWrap" style="display:flex;align-items:center;gap:6px;font-size:9px;color:var(--text-muted);letter-spacing:.5px;font-weight:600">
-                FONT SIZE
-                <input type="number" id="designerSelFontSize" class="num-input" min="4" max="72" step="0.5" placeholder="Auto" style="width:54px">
-              </label>
-              <label style="display:flex;align-items:center;gap:6px;font-size:9px;color:var(--text-muted);letter-spacing:.5px;font-weight:600">
-                OPACITY
-                <input type="range" id="designerSelOpacity" min="10" max="100" step="5" style="width:64px">
-              </label>
-              <label style="display:flex;align-items:center;gap:6px;font-size:9px;color:var(--text-muted);letter-spacing:.5px;font-weight:600">
-                ROTATE
-                <input type="number" id="designerSelRotation" class="num-input" min="-180" max="180" step="1" style="width:54px">°
-              </label>
-              <label id="designerSelFillWrap" style="display:none;align-items:center;gap:6px;font-size:9px;color:var(--text-muted);letter-spacing:.5px;font-weight:600">
-                FILL
-                <input type="color" id="designerSelFill" class="dsg-color-input">
-              </label>
-              <label id="designerSelStrokeWrap" style="display:none;align-items:center;gap:6px;font-size:9px;color:var(--text-muted);letter-spacing:.5px;font-weight:600">
-                STROKE
-                <input type="color" id="designerSelStroke" class="dsg-color-input">
-              </label>
-              <div id="dsgAlignGroup" style="display:none;gap:6px;flex-wrap:wrap">
+              flex-direction:column;align-items:stretch;gap:10px">
+              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                <span style="font-size:9px;color:var(--text-muted);letter-spacing:.5px;font-weight:700">SELECTED:</span>
+                <span id="designerSelName" style="font-size:10px;font-weight:700;color:var(--accent-text)"></span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <div class="form-section-hdr" style="margin-top:0;padding-bottom:4px">TEXT</div>
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:100%">
+                  <div class="g-select" id="fontSelect" tabindex="0" style="min-width:100px">
+                    <span id="fontLabel">Helvetica</span>
+                    <span class="arr"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                    <div class="g-options" id="fontOptions"></div>
+                  </div>
+                  <div class="align-group" id="alignGroup" role="group" aria-label="Text alignment">
+                    <div class="align-btn" data-align="Left" title="Align left"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+                    <div class="align-btn active" data-align="Center" title="Align center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16M7 12h10M5.5 18h13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+                    <div class="align-btn" data-align="Right" title="Align right"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16M10 12h10M7 18h13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+                  </div>
+                  <div class="align-group" id="fmtGroup" role="group" aria-label="Text style">
+                    <div class="align-btn active" id="boldBtn" title="Bold"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 4h7a4 4 0 0 1 0 8H6zM6 12h8a4 4 0 0 1 0 8H6z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                    <div class="align-btn" id="italicBtn" title="Italic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M10 4h7M7 20h7M14 4 10 20" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                    <div class="align-btn" id="underlineBtn" title="Underline"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 4v8a6 6 0 0 0 12 0V4M4 20h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:5px">
+                    <input type="color" id="textColor" value="#000000" style="width:24px;height:24px;padding:0;border:none;border-radius:8px;background:none;cursor:pointer">
+                    <input type="text" id="textColorHex" class="num-input" value="#000000" maxlength="7" style="width:78px;text-transform:uppercase">
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:100%;padding-top:10px;border-top:1px solid var(--border)">
+                  <label style="display:flex;align-items:center;gap:6px;font-size:9px;color:var(--text-muted);letter-spacing:1px;cursor:pointer;font-weight:600">
+                    <input type="checkbox" id="borderToggle"> BORDER
+                  </label>
+                  <input type="color" id="borderColor" value="#666666" style="width:24px;height:24px;padding:0;border:none;border-radius:8px;background:none;cursor:pointer">
+                  <label style="display:flex;align-items:center;gap:6px;font-size:9px;color:var(--text-muted);letter-spacing:1px;font-weight:600">
+                    RADIUS
+                    <input type="number" id="radiusInput" class="num-input" min="0" step="0.5" value="0" style="width:46px">
+                  </label>
+                  <label style="display:flex;align-items:center;gap:6px;font-size:9px;color:var(--text-muted);letter-spacing:1px;font-weight:600">
+                    FONT SIZE
+                    <div class="num-stepper">
+                      <button type="button" data-step="-0.5" aria-label="Decrease font size">&minus;</button>
+                      <input type="number" id="fontSizeInput" min="4" max="72" step="0.5" placeholder="Auto">
+                      <button type="button" data-step="0.5" aria-label="Increase font size">&plus;</button>
+                    </div>
+                  </label>
+                  <label style="display:flex;align-items:center;gap:6px;font-size:9px;color:var(--text-muted);letter-spacing:1px;cursor:pointer;font-weight:600">
+                    <input type="checkbox" id="rotateToggle"> ROTATE 90&deg;
+                  </label>
+                </div>
+                <div class="form-section-hdr" style="margin-top:0;padding-bottom:4px">SHAPE</div>
+                <label id="designerSelFontSizeWrap" style="display:flex;align-items:center;gap:6px;font-size:9px;color:var(--text-muted);letter-spacing:.5px;font-weight:600">
+                  FONT SIZE
+                  <input type="number" id="designerSelFontSize" class="num-input" min="4" max="72" step="0.5" placeholder="Auto" style="width:54px">
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;font-size:9px;color:var(--text-muted);letter-spacing:.5px;font-weight:600">
+                  OPACITY
+                  <input type="range" id="designerSelOpacity" min="10" max="100" step="5" style="width:64px">
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;font-size:9px;color:var(--text-muted);letter-spacing:.5px;font-weight:600">
+                  ROTATE
+                  <input type="number" id="designerSelRotation" class="num-input" min="-180" max="180" step="1" style="width:54px">°
+                </label>
+                <label id="designerSelFillWrap" style="display:none;align-items:center;gap:6px;font-size:9px;color:var(--text-muted);letter-spacing:.5px;font-weight:600">
+                  FILL
+                  <input type="color" id="designerSelFill" class="dsg-color-input">
+                </label>
+                <label id="designerSelStrokeWrap" style="display:none;align-items:center;gap:6px;font-size:9px;color:var(--text-muted);letter-spacing:.5px;font-weight:600">
+                  STROKE
+                  <input type="color" id="designerSelStroke" class="dsg-color-input">
+                </label>
+              </div>
+              <div id="dsgAlignGroup" style="display:none;gap:6px;flex-wrap:wrap;padding-top:8px;border-top:1px solid var(--border)">
+                <div class="form-section-hdr" style="margin-top:0;padding-bottom:4px;width:100%">ARRANGE</div>
                 <div class="g-btn" id="dsgAlignLeftBtn" title="Align left">Left</div>
                 <div class="g-btn" id="dsgAlignHCenterBtn" title="Align center horizontally">Center</div>
                 <div class="g-btn" id="dsgAlignRightBtn" title="Align right">Right</div>
@@ -334,7 +338,7 @@
                 <div class="g-btn" id="dsgDistHBtn" title="Distribute horizontally, needs 3+">Dist H</div>
                 <div class="g-btn" id="dsgDistVBtn" title="Distribute vertically, needs 3+">Dist V</div>
               </div>
-              <div style="display:flex;gap:6px;margin-left:auto;flex-wrap:wrap">
+              <div style="display:flex;gap:6px;margin-left:auto;flex-wrap:wrap;padding-top:8px;border-top:1px solid var(--border)">
                 <div class="g-btn" id="dsgLockBtn" title="Lock/unlock">Lock</div>
                 <div class="g-btn" id="dsgHideBtn" title="Show/hide">Hide</div>
                 <div class="g-btn" id="dsgFrontBtn" title="Bring to front">Front</div>
@@ -371,17 +375,16 @@
         <div class="form-section-hdr" style="margin-top:0">4. EXPORT TYPE</div>
         <div class="form-row lockable" id="exportFormatRow">
           <span class="form-lbl">EXPORT</span>
-          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-            <div class="g-select" id="exportFormatSelect" tabindex="0" style="min-width:150px">
-              <span id="exportFormatLabel">PDF (sheet)</span>
-              <span class="arr"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-              <div class="g-options" id="exportFormatOptions"></div>
-            </div>
-            <div class="g-select" id="zplDpiSelect" tabindex="0" style="display:none;min-width:130px">
-              <span id="zplDpiLabel">203 dpi (standard)</span>
-              <span class="arr"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-              <div class="g-options" id="zplDpiOptions"></div>
-            </div>
+          <div id="exportFormatGroup" style="display:flex;gap:4px;flex-wrap:wrap" role="radiogroup" aria-label="Export format">
+            <div class="g-btn export-format-btn" data-format="PDF (sheet)" style="flex:1;min-width:100px;text-align:center;padding:10px 8px">PDF (sheet)</div>
+            <div class="g-btn export-format-btn" data-format="ZPL (Zebra thermal)" style="flex:1;min-width:100px;text-align:center;padding:10px 8px">ZPL</div>
+            <div class="g-btn export-format-btn" data-format="EPL (Eltron thermal)" style="flex:1;min-width:100px;text-align:center;padding:10px 8px">EPL</div>
+            <div class="g-btn export-format-btn" data-format="TSPL (TSC thermal)" style="flex:1;min-width:100px;text-align:center;padding:10px 8px">TSPL</div>
+          </div>
+          <div class="g-select" id="zplDpiSelect" tabindex="0" style="display:none;min-width:130px;margin-top:8px">
+            <span id="zplDpiLabel">203 dpi (standard)</span>
+            <span class="arr"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <div class="g-options" id="zplDpiOptions"></div>
           </div>
         </div>
         <div class="form-row lockable" id="printMarksRow" style="display:none">
@@ -422,13 +425,6 @@
       <div class="status">
         <div class="s-dot" id="sDot"></div>
         <span class="s-txt" id="sTxt">System Ready</span>
-      </div>
-
-      <div class="prog-track gen-progress-el">
-        <div id="progFill">
-          <div class="prog-shimmer" id="progShimmer"><div class="prog-shimmer-inner"></div></div>
-          <div class="prog-dot"></div>
-        </div>
       </div>
 
       <div class="footnote">RUNS ENTIRELY IN YOUR BROWSER · NO UPLOAD · NO INSTALL</div>
