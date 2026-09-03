@@ -2873,12 +2873,8 @@ function generateTSPL(rows, labelWmm, labelHmm, qrFieldIdx, design, canvasElemen
   return { tspl: out, skippedCount };
 }
 
-const EXPORT_FORMATS = ['PDF (sheet)', 'ZPL (Zebra thermal)', 'EPL (Eltron thermal)', 'TSPL (TSC thermal)'];
-const DPI_LABELS = { '203 dpi (standard)': 203, '300 dpi (high-res)': 300 };
+const EXPORT_FORMATS = ['PDF (sheet)', 'DIRECT_PRINT'];
 const exportFormatGroup = document.getElementById('exportFormatGroup');
-const zplDpiSelect = document.getElementById('zplDpiSelect');
-const zplDpiOptions = document.getElementById('zplDpiOptions');
-const zplDpiLabel = document.getElementById('zplDpiLabel');
 
 function buildExportFormatButtons(){
   if(!exportFormatGroup) return;
@@ -2887,7 +2883,7 @@ function buildExportFormatButtons(){
     const btn=document.createElement('div');
     btn.className='g-btn export-format-btn'+(key===state.exportFormat?' active':'');
     btn.dataset.format = key;
-    btn.textContent = key === 'PDF (sheet)' ? 'PDF (sheet)' : key.split(' ')[0];
+    btn.textContent = key === 'PDF (sheet)' ? 'PDF' : 'Direct Print';
     btn.style.cssText = 'flex:1;min-width:100px;text-align:center;padding:10px 8px';
     btn.addEventListener('click',(e)=>{
       e.stopPropagation();
@@ -2914,8 +2910,7 @@ function applyGenBtnAppearance(isThermal){
 }
 
 function syncExportFormatUI(){
-  const isThermal = state.exportFormat.startsWith('ZPL') || state.exportFormat.startsWith('EPL') || state.exportFormat.startsWith('TSPL');
-  zplDpiSelect.style.display = isThermal ? 'flex' : 'none';
+  const isThermal = state.exportFormat === 'DIRECT_PRINT';
   const marksRow = document.getElementById('printMarksRow');
   if(marksRow){
     const l = getEffectiveLayout();
@@ -2930,7 +2925,6 @@ function syncExportFormatUI(){
       sizeSpan.textContent = `${wMm}mm \u00d7 ${hMm}mm`;
     }
   }
-  const exportFormatGroup = document.getElementById('exportFormatGroup');
   if(exportFormatGroup){
     exportFormatGroup.querySelectorAll('.export-format-btn').forEach(btn=>{
       btn.classList.toggle('active', btn.dataset.format === state.exportFormat);
@@ -2938,31 +2932,6 @@ function syncExportFormatUI(){
   }
   if(typeof busy==='undefined' || !busy) applyGenBtnAppearance(isThermal);
 }
-function buildDpiOptions(){
-  zplDpiOptions.innerHTML='';
-  Object.keys(DPI_LABELS).forEach(key=>{
-    const opt=document.createElement('div');
-    opt.className='g-opt'+(key===state.dpi?' active':'');
-    opt.textContent=key;
-    opt.addEventListener('click',(e)=>{
-      e.stopPropagation();
-      state.dpi=key;
-      zplDpiLabel.textContent=key;
-      closeAll();
-      buildDpiOptions();
-    });
-    zplDpiOptions.appendChild(opt);
-  });
-}
-buildDpiOptions();
-zplDpiSelect.addEventListener('click',(e)=>{
-  e.stopPropagation();
-  const isOpen=zplDpiSelect.classList.contains('open');
-  closeAll();
-  if(!isOpen){
-    zplDpiSelect.classList.add('open');
-    zplDpiOptions.classList.add('open');
-    const row=zplDpiSelect.closest('.form-row');
     if(row) row.classList.add('row-active');
   }
 });
@@ -2976,7 +2945,7 @@ let busy=false;
 genBtn.addEventListener('click', async ()=>{
   if(busy) return;
 
-  const isThermal = state.exportFormat.startsWith('ZPL') || state.exportFormat.startsWith('EPL') || state.exportFormat.startsWith('TSPL');
+  const isThermal = state.exportFormat === 'DIRECT_PRINT';
 
   busy = true;
   genWrap.classList.add('disabled');
@@ -3087,7 +3056,7 @@ function sendUsageBeacon(count, exportType){
 function resetBtn(){
   busy=false;
   genWrap.classList.remove('disabled');
-  const isThermal = state.exportFormat.startsWith('ZPL') || state.exportFormat.startsWith('EPL') || state.exportFormat.startsWith('TSPL');
+  const isThermal = state.exportFormat === 'DIRECT_PRINT';
   applyGenBtnAppearance(isThermal);
 }
 
